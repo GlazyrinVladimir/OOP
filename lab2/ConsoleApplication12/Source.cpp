@@ -12,10 +12,10 @@
 
 using namespace std;
 
-void From10to2(int number, int methodOfByte[8])
+void TransferToAnotherNumberSystem(int number, int methodOfByte[8])
 {
 	int countOfByte = 7;
-		while ( number != 1)
+		while (number != 1)
 		{
 			methodOfByte[countOfByte] = number % 2;
 			countOfByte--;
@@ -27,9 +27,9 @@ void From10to2(int number, int methodOfByte[8])
 void CountTheNumber(int methodOfByte[8], int &outputNumber)
 {
 	const int scaleOfNotation = 2;
-	for ( int i = 0; i < 8; i++)
+	for (int i = 0; i < 8; i++)
 	{
-		if ( methodOfByte[i] == 1)
+		if (methodOfByte[i] == 1)
 		{
 			outputNumber += int(pow(scaleOfNotation, i));
 		}
@@ -38,17 +38,18 @@ void CountTheNumber(int methodOfByte[8], int &outputNumber)
 
 void WriteData(int outputNumber, ofstream &outputFile, bool errorInputNumber)
 {
-	if ( outputFile.is_open())
+	if (outputFile.is_open())
 	{
-		if ( errorInputNumber)
+		if (errorInputNumber)
 		{
 			outputFile << "error in input" << endl;
 		}
 		else
 		{
 			outputFile << outputNumber << endl;
-		}	
-		if ( !outputFile)
+		}
+		
+		if (!outputFile)
 		{
 			cout << "An error occurred when writing outputFile" << endl;
 		}
@@ -57,45 +58,51 @@ void WriteData(int outputNumber, ofstream &outputFile, bool errorInputNumber)
 	{
 		cout << "Failed to open output.txt for writing" << endl;
 	}
-	outputFile.close();
+	outputFile.flush();
+}
+
+void TransformToNewnumber(int inputNumber, ofstream &outputFile)
+{
+	int methodOfByte[8] = { 0,0,0,0,0,0,0,0 };
+	int outputNumber = 0;
+	bool errorInputNumber = false;
+
+	if (inputNumber > 0 && inputNumber <= 255)
+	{
+		TransferToAnotherNumberSystem(inputNumber, methodOfByte);
+		CountTheNumber(methodOfByte, outputNumber);
+		WriteData(outputNumber, outputFile, errorInputNumber);
+	}
+	else
+	{
+		if (inputNumber != 0)
+		{
+			errorInputNumber = true;
+		}
+		WriteData(outputNumber, outputFile, errorInputNumber);
+	}
 }
 
 int main(int argc, char * argv[])
 {
 	int inputNumber;
-	int outputNumber = 0;
-	int methodOfByte[8] = {0,0,0,0,0,0,0,0};
-	bool errorInputNumber = false;
-	
+
 	setlocale(LC_ALL, "");
 
-	if ( argc < 3)
+	if (argc <= 2)
 	{
-		printf("Ошибка! Не хватает аргументов для работы программы. Параметры командной строки: flipbyte.exe outputFile number \n");
+		printf("Ошибка! Не хватает аргументов для работы программы. Формат командной строки flipbyte.exe outputFile <входной байт> \n");
 		return 1;
 	}
-	else if ( argc > 3)
+	else if (argc > 3)
 	{
-		printf("Ошибка! Слишком много аргументов для работы программы. Параметры командной строки: flipbyte.exe outputFile number \n");
+		printf("Ошибка! Слишком много аргументов для работы программы. Формат командной строки flipbyte.exe outputFile <входной байт> \n");
 		return 1;
 	}
 
 	ofstream outputFile(argv[1]);
-
 	inputNumber = atoi(argv[2]);
 
-	if ( inputNumber > 0 && inputNumber <= 255)
-	{
-		From10to2(inputNumber, methodOfByte);
-		CountTheNumber(methodOfByte, outputNumber);
-	}
-	else
-	{
-		if ( inputNumber != 0)
-		{
-			errorInputNumber = true;
-		}
-	}
-	WriteData(outputNumber, outputFile, errorInputNumber);
+	TransformToNewnumber(inputNumber, outputFile);
 	return 1;
 }
